@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未来畅想 | 个人主页</title>
+    <style>
+        /* 主题变量定义 - 只保留深色模式 */
+        :root {
+            --bg-primary: rgba(0, 0, 20, 0.2);
+            --text-color: #f8f8f2;
+            --card-bg: rgba(0, 0, 40, 0.3);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --header-bg: rgba(0, 0, 20, 0.3);
+            --terminal-header: linear-gradient(to right, #4facfe, #00f2fe);
+            --prompt-color: #ff79c6;
+            --command-color: #00ff41;
+            --response-color: #f1fa8c;
+            --accent-color: #4facfe;
+            --accent-gradient: linear-gradient(to right, #4facfe, #00f2fe);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --hover-bg: rgba(79, 172, 254, 0.3);
+            --bg-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+            --footer-bg: rgba(0, 0, 20, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft Yahei', 'Courier New', monospace;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            font-size: 1.2rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--hover-bg);
+            transform: scale(1.05);
+        }
+
+        body {
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--text-color);
+            line-height: 1.8;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: -1;
+        }
+
+        /* 网站头部导航 */
+        header.site-header {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--card-border);
+            background: var(--header-bg);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        /* 导航栏滚动容器 */
+        .nav-container {
+            position: relative;
+            overflow: hidden;
+            max-width: 70%;
+        }
+
+        .nav-scroll {
+            display: flex;
+            gap: 1rem;
+            transition: transform 0.3s ease;
+            padding: 0 1rem;
+        }
+
+        /* 导航箭头 */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .nav-arrow:hover {
+            opacity: 1;
+            background: var(--hover-bg);
+        }
+
+        .nav-arrow.left {
+            left: 0;
+        }
+
+        .nav-arrow.right {
+            right: 0;
+        }
+
+        nav a {
+            color: var(--response-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px var(--shadow-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: var(--card-bg);
+            white-space: nowrap;
+        }
+
+        nav a:hover, nav a.active {
+            opacity: 1;
+            color: var(--text-color);
+            background: var(--hover-bg);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        /* 移动端导航菜单 */
+        .menu-toggle {
+            display: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 250px;
+            height: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border-left: 1px solid var(--card-border);
+            z-index: 999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            padding: 2rem;
+        }
+
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        .mobile-menu a {
+            display: block;
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--card-border);
+            text-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* 内容头部 */
+        .content-header {
+            text-align: center;
+            padding: 3rem 0;
+            position: relative;
+            opacity: 0;
+            animation: fadeIn 1s forwards 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            letter-spacing: 0.2em;
+            position: relative;
+            display: inline-block;
+            color: var(--text-color);
+        }
+
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 10%;
+            width: 80%;
+            height: 1px;
+            background: var(--accent-gradient);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            font-weight: 200;
+            letter-spacing: 0.1em;
+            color: var(--text-color);
+        }
+
+        /* 音乐控制 */
+        .music-player {
+            position: fixed;
+            bottom: 90px;
+            right: 30px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 50px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+            box-shadow: 0 10px 30px var(--shadow-color);
+        }
+
+        .music-info {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            color: var(--text-color);
+        }
+
+        .music-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.3rem;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+
+        .music-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .volume-control {
+            width: 80px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        /* 内容容器 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            padding-bottom: 6rem;
+        }
+
+        /* 文本段落样式 */
+        .poem-line {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            color: var(--text-color);
+        }
+
+        .poem-line.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .poem-line::before {
+            content: '·';
+            position: absolute;
+            left: -20px;
+            color: var(--accent-color);
+            opacity: 0;
+            transition: opacity 0.5s ease 0.5s;
+        }
+
+        .poem-line.active::before {
+            opacity: 0.7;
+        }
+
+        /* 引用样式 */
+        .quote {
+            font-size: 1.3rem;
+            font-style: italic;
+            margin: 4rem 0;
+            padding: 2rem;
+            border-left: 3px solid var(--accent-color);
+            background: var(--card-bg);
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 1s ease;
+            color: var(--text-color);
+        }
+
+        .quote.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* 结尾 */
+        .ending {
+            text-align: center;
+            padding: 4rem 0;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: all 2s ease;
+            color: var(--text-color);
+        }
+
+        .ending.active {
+            opacity: 1;
+        }
+
+        .signature {
+            margin-top: 2rem;
+            font-style: italic;
+            opacity: 0.7;
+        }
+
+        /* 加载动画 */
+        .loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.7;
+            font-size: 2rem;
+            z-index: 50;
+            color: var(--text-color);
+        }
+
+        .loading-spinner {
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-block;
+            margin: 4rem auto 2rem;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-50%) translateY(-5px);
+            box-shadow: 0 10px 25px var(--shadow-color);
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        .back-btn.active {
+            opacity: 1;
+            animation: fadeIn 1s forwards;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-color);
+            margin-top: 3rem;
+            border-top: 1px solid var(--card-border);
+            background: var(--footer-bg);
+            backdrop-filter: blur(8px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .nav-container, .nav-arrow {
+                display: none;
+            }
+            
+            nav {
+                display: none;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .poem-line {
+                font-size: 1.2rem;
+            }
+            
+            .music-player {
+                transform: scale(0.9);
+                bottom: 80px;
+                right: 20px;
+            }
+            
+            .back-to-top {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- 移动端导航菜单 -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-close" id="mobileMenuClose">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html"><i class="fas fa-home"></i> 首页</a>
+        <a href="basic-info.html"><i class="fas fa-user"></i> 基本情况</a>
+        <a href="education.html"><i class="fas fa-graduation-cap"></i> 教育经历</a>
+        <a href="hobbies.html"><i class="fas fa-heart"></i> 个人爱好</a>
+        <a href="moments.html"><i class="fas fa-camera"></i> 难忘瞬间</a>
+        <a href="future.html" class="active"><i class="fas fa-rocket"></i> 未来展望</a>
+    </div>
+
+    <!-- 网站头部导航 -->
+    <header class="site-header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-star"></i>
+                个人主页
+            </a>
+            
+            <!-- 带滚动功能的导航容器 -->
+            <div class="nav-container">
+                <div class="nav-arrow left" id="navLeft">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <nav class="nav-scroll" id="navScroll">
+                    <a href="index.html"><i class="fas fa-home"></i> 首页</a>
+                    <a href="basic-info.html"><i class="fas fa-user"></i> 基本情况</a>
+                    <a href="education.html"><i class="fas fa-graduation-cap"></i> 教育经历</a>
+                    <a href="hobbies.html"><i class="fas fa-heart"></i> 个人爱好</a>
+                    <a href="moments.html"><i class="fas fa-camera"></i> 难忘瞬间</a>
+                    <a href="future.html" class="active"><i class="fas fa-rocket"></i> 未来展望</a>
+                </nav>
+                <div class="nav-arrow right" id="navRight">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <!-- 移动端菜单按钮 -->
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 加载动画 -->
+    <div class="loading-indicator">
+        <i class="fas fa-circle-notch loading-spinner"></i>
+    </div>
+
+    <!-- 音乐播放器 -->
+    <div class="music-player">
+        <div class="music-info">背景音乐：筑梦（滑动调节音量）</div>
+        <button id="playBtn" class="music-btn">
+            <i class="fas fa-play"></i>
+        </button>
+        <button id="pauseBtn" class="music-btn" style="display: none;">
+            <i class="fas fa-pause"></i>
+        </button>
+        <input type="range" id="volumeControl" class="volume-control" min="0" max="1" step="0.1" value="0.3">
+    </div>
+
+    <!-- 音频元素 -->
+    <audio id="backgroundMusic" loop>
+        <source src="music/dream.MP3">
+        您的浏览器不支持音频播放
+    </audio>
+
+    <!-- 内容头部 -->
+    <header class="content-header">
+        <h1 class="title">未来畅想</h1>
+        <p class="subtitle">致心中那片星辰大海</p>
+    </header>
+
+    <div class="container">
+        <div class="poem-line">站在华中科技大学的梧桐树下</div>
+        <div class="poem-line">我听见未来的呼唤</div>
+        <div class="poem-line">像光谷的灯火，在夜色中闪烁</div>
+
+        <div class="poem-line">代码是我笔下的诗行</div>
+        <div class="poem-line">算法编织着梦想的经纬</div>
+        <div class="poem-line">在0和1的世界里</div>
+        <div class="poem-line">寻找属于自己的答案</div>
+
+        <div class="quote">
+            "我们都是追梦人，在今天勇敢向未来报到。"
+        </div>
+
+        <div class="poem-line">希望有一天</div>
+        <div class="poem-line">我的程序能让世界更美好</div>
+        <div class="poem-line">我的创意能点亮某个角落</div>
+        <div class="poem-line">我的坚持能成为别人的光</div>
+
+        <div class="poem-line">从光谷出发</div>
+        <div class="poem-line">走向更广阔的天地</div>
+        <div class="poem-line">带着华科人的严谨与创新</div>
+        <div class="poem-line">书写属于我们的传奇</div>
+
+        <div class="ending">
+            <p>未来可期，我在路上</p>
+            <p class="signature">—— 致每一个不甘平凡的梦想</p>
+        </div>
+
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
+    </div>
+
+    <footer>
+        <p>&copy; 我的个人主页</p>
+    </footer>
+
+    <script>
+        // 返回顶部功能
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+        
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 导航栏滚动功能
+        const navScroll = document.getElementById('navScroll');
+        const navLeft = document.getElementById('navLeft');
+        const navRight = document.getElementById('navRight');
+        let scrollAmount = 0;
+        const scrollStep = 150; // 每次滚动的距离
+
+        navRight.addEventListener('click', () => {
+            const maxScroll = navScroll.scrollWidth - navScroll.parentElement.clientWidth;
+            scrollAmount = Math.min(scrollAmount + scrollStep, maxScroll);
+            navScroll.style.transform = `translateX(-${scrollAmount}px)`;
+        });
+
+        navLeft.addEventListener('click', () => {
+            scrollAmount = Math.max(scrollAmount - scrollStep, 0);
+            navScroll.style.transform = `translateX(-${scrollAmount}px)`;
+        });
+
+        // 窗口大小变化时重置滚动位置
+        window.addEventListener('resize', () => {
+            scrollAmount = 0;
+            navScroll.style.transform = `translateX(0)`;
+        });
+
+        // 移动端菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.add('active');
+        });
+
+        mobileMenuClose.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+        });
+
+        // 键盘导航支持
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                mobileMenu.classList.remove('active');
+            }
+            if (e.key === 'PageUp') {
+                window.scrollBy({ top: -300, behavior: 'smooth' });
+            }
+            if (e.key === 'PageDown') {
+                window.scrollBy({ top: 300, behavior: 'smooth' });
+            }
+        });
+
+        // 等待页面完全加载
+        window.addEventListener('load', function() {
+            // 隐藏加载动画
+            setTimeout(() => {
+                document.querySelector('.loading-indicator').style.opacity = '0';
+                document.querySelector('.loading-indicator').style.transition = 'opacity 0.5s ease';
+            }, 800);
+
+            // 音乐控制
+            const audio = document.getElementById('backgroundMusic');
+            const playBtn = document.getElementById('playBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const volumeControl = document.getElementById('volumeControl');
+            const backBtn = document.querySelector('.back-btn');
+
+            // 设置初始音量
+            audio.volume = volumeControl.value;
+
+            // 页面加载后处理音乐播放
+            const initAudio = () => {
+                audio.play().then(() => {
+                    playBtn.style.display = 'none';
+                    pauseBtn.style.display = 'inline-block';
+                }).catch(error => {
+                    console.log('点击播放按钮开始音乐');
+                });
+                document.removeEventListener('click', initAudio);
+            };
+
+            document.addEventListener('click', initAudio);
+
+            // 音乐控制按钮事件
+            playBtn.addEventListener('click', () => {
+                audio.play();
+                playBtn.style.display = 'none';
+                pauseBtn.style.display = 'inline-block';
+            });
+
+            pauseBtn.addEventListener('click', () => {
+                audio.pause();
+                pauseBtn.style.display = 'none';
+                playBtn.style.display = 'inline-block';
+            });
+
+            volumeControl.addEventListener('input', () => {
+                audio.volume = volumeControl.value;
+            });
+
+            // 自动播放内容
+            const elements = document.querySelectorAll('.poem-line, .quote, .ending');
+            let currentIndex = 0;
+            const intervalTime = 1000; // 1秒
+
+            // 显示下一个元素
+            function showNextElement() {
+                if (currentIndex < elements.length) {
+                    elements[currentIndex].classList.add('active');
+                    
+                    // 滚动到当前元素
+                    elements[currentIndex].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                    
+                    currentIndex++;
+                    
+                    // 最后一个元素显示后，显示返回按钮
+                    if (currentIndex === elements.length) {
+                        setTimeout(() => {
+                            backBtn.classList.add('active');
+                        }, 1000);
+                    }
+                } else {
+                    clearInterval(autoPlayInterval);
+                }
+            }
+
+            // 启动自动播放（延迟启动，确保页面加载完成）
+            setTimeout(() => {
+                showNextElement();
+                const autoPlayInterval = setInterval(showNextElement, intervalTime);
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

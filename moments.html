@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>难忘瞬间 | 个人主页</title>
+    <style>
+        /* 主题变量定义 */
+        :root {
+            /* 深色模式（默认）- 低透明度设置 */
+            --bg-primary: rgba(0, 0, 30, 0.2);
+            --text-color: #f8f8f2;
+            --card-bg: rgba(0, 0, 40, 0.3);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --header-bg: rgba(0, 0, 20, 0.3);
+            --terminal-header: linear-gradient(to right, #4facfe, #00f2fe);
+            --prompt-color: #ff79c6;
+            --command-color: #00ff41;
+            --response-color: #f1fa8c;
+            --accent-color: #4facfe;
+            --accent-gradient: linear-gradient(to right, #4facfe, #00f2fe);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --hover-bg: rgba(79, 172, 254, 0.3);
+            --bg-image: url('images/dada.JPG');
+            --footer-bg: rgba(0, 0, 20, 0.3);
+        }
+
+        .light-mode {
+            /* 浅色模式 - 低透明度设置 */
+            --bg-primary: rgba(245, 245, 250, 0.2);
+            --text-color: #2d2d2d;
+            --card-bg: rgba(255, 255, 255, 0.4);
+            --card-border: rgba(200, 200, 200, 0.2);
+            --header-bg: rgba(248, 248, 250, 0.3);
+            --terminal-header: linear-gradient(to right, #2980b9, #3498db);
+            --prompt-color: #9b59b6;
+            --command-color: #27ae60;
+            --response-color: #f39c12;
+            --accent-color: #2980b9;
+            --accent-gradient: linear-gradient(to right, #2980b9, #3498db);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --hover-bg: rgba(41, 128, 185, 0.2);
+            --footer-bg: rgba(248, 248, 250, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* 主题切换按钮 */
+        .theme-toggle-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            font-size: 1.4rem;
+            position: relative;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px var(--shadow-color);
+        }
+
+        .theme-label {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .theme-toggle-container:hover .theme-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            font-size: 1.2rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--hover-bg);
+            transform: scale(1.05);
+        }
+
+        body {
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--text-color);
+            line-height: 1.6;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: -1;
+        }
+
+        header {
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--card-border);
+            background: var(--header-bg);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        /* 导航栏滚动容器 */
+        .nav-container {
+            position: relative;
+            overflow: hidden;
+            max-width: 70%;
+        }
+
+        .nav-scroll {
+            display: flex;
+            gap: 1rem;
+            transition: transform 0.3s ease;
+            padding: 0 1rem;
+        }
+
+        /* 导航箭头 */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .nav-arrow:hover {
+            opacity: 1;
+            background: var(--hover-bg);
+        }
+
+        .nav-arrow.left {
+            left: 0;
+        }
+
+        .nav-arrow.right {
+            right: 0;
+        }
+
+        nav a {
+            color: var(--response-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px var(--shadow-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: var(--skill-card-bg);
+            white-space: nowrap;
+        }
+
+        nav a:hover, nav a.active {
+            opacity: 1;
+            color: var(--text-color);
+            background: var(--hover-bg);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .terminal-header {
+            background: var(--terminal-header);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        .terminal-content {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--card-border);
+            border-radius: 0 0 10px 10px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px var(--shadow-color);
+        }
+
+        .command {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        .command:nth-child(1) { animation-delay: 0.1s; }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .prompt {
+            color: var(--prompt-color);
+            font-weight: bold;
+            margin-right: 0.5rem;
+            text-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .prompt::after {
+            content: "_";
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1 }
+            50% { opacity: 0 }
+        }
+
+        /* 难忘瞬间图片网格 - 以照片为主的布局 */
+        .moments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards 0.3s;
+        }
+
+        .moment-card {
+            background: rgba(0, 0, 50, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .moment-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-color);
+            box-shadow: 0 15px 30px var(--shadow-color);
+        }
+
+        .moment-image {
+            height: 280px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .moment-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .moment-card:hover .moment-image img {
+            transform: scale(1.08);
+        }
+
+        .moment-info {
+            padding: 1.2rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .moment-title {
+            color: var(--response-color);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .moment-date {
+            color: var(--accent-color);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .moment-desc {
+            color: var(--text-color);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 3rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px var(--shadow-color);
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-color);
+            margin-top: 3rem;
+            border-top: 1px solid var(--card-border);
+            background: var(--footer-bg);
+            backdrop-filter: blur(8px);
+        }
+
+        /* 移动端导航菜单 */
+        .menu-toggle {
+            display: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 250px;
+            height: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border-left: 1px solid var(--card-border);
+            z-index: 999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            padding: 2rem;
+        }
+
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        .mobile-menu a {
+            display: block;
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--card-border);
+            text-shadow: 0 1px 2px var(--shadow-color);
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .nav-container, .nav-arrow {
+                display: none;
+            }
+            
+            nav {
+                display: none;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .moments-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .moment-image {
+                height: 220px;
+            }
+            
+            /* 移动端主题切换按钮位置调整 */
+            .theme-toggle-container {
+                top: 20px;
+            }
+            
+            .theme-label {
+                display: none;
+            }
+            
+            .theme-toggle {
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
+            
+            .back-to-top {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 主题切换按钮 -->
+    <div class="theme-toggle-container">
+        <button class="theme-toggle" id="themeToggle">
+            <i class="fas fa-sun"></i>
+        </button>
+        <span class="theme-label" id="themeLabel">切换浅色模式</span>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- 移动端导航菜单 -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-close" id="mobileMenuClose">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html"><i class="fas fa-home"></i> 首页</a>
+        <a href="basic-info.html"><i class="fas fa-user"></i> 基本情况</a>
+        <a href="education.html"><i class="fas fa-graduation-cap"></i> 教育经历</a>
+        <a href="hobbies.html"><i class="fas fa-heart"></i> 个人爱好</a>
+        <a href="moments.html" class="active"><i class="fas fa-camera"></i> 难忘瞬间</a>
+        <a href="future.html"><i class="fas fa-rocket"></i> 未来展望</a>
+    </div>
+
+    <header>
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-star"></i>
+                个人主页
+            </a>
+            
+            <!-- 带滚动功能的导航容器 -->
+            <div class="nav-container">
+                <div class="nav-arrow left" id="navLeft">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <nav class="nav-scroll" id="navScroll">
+                    <a href="index.html"><i class="fas fa-home"></i> 首页</a>
+                    <a href="basic-info.html"><i class="fas fa-user"></i> 基本情况</a>
+                    <a href="education.html"><i class="fas fa-graduation-cap"></i> 教育经历</a>
+                    <a href="hobbies.html"><i class="fas fa-heart"></i> 个人爱好</a>
+                    <a href="moments.html" class="active"><i class="fas fa-camera"></i> 难忘瞬间</a>
+                    <a href="future.html"><i class="fas fa-rocket"></i> 未来展望</a>
+                </nav>
+                <div class="nav-arrow right" id="navRight">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <!-- 移动端菜单按钮 -->
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="terminal-header">
+            <div class="terminal-title">memorable-moments > index</div>
+            <div><i class="fas fa-camera"></i></div>
+        </div>
+        <div class="terminal-content">
+            <div class="command">
+                <span class="prompt">>_</span>
+                <span>show_precious_moments()</span>
+            </div>
+
+            <!-- 难忘瞬间图片展示 - 以照片为主 -->
+            <div class="moments-grid">
+                <div class="moment-card">
+                    <div class="moment-image">
+                        <img src="images/cake.JPG" alt="高中毕业">
+                    </div>
+                    <div class="moment-info">
+                        <h3 class="moment-title">生日聚会</h3>
+                        <span class="moment-date"></span>
+                        <p class="moment-desc">被抹一脸蛋糕，但是没事，君子报仇十年不晚</p>
+                    </div>
+                </div>
+
+                <div class="moment-card">
+                    <div class="moment-image">
+                        <img src="images/work.JPG" alt="大学开学">
+                    </div>
+                    <div class="moment-info">
+                        <h3 class="moment-title">快乐的童年时光</h3>
+                        <span class="moment-date"></span>
+                        <p class="moment-desc">我的第一个作品，小时候真的很喜欢玩这个</p>
+                    </div>
+                </div>
+
+                <div class="moment-card">
+                    <div class="moment-image">
+                        <img src="images/gift.JPG" alt="编程比赛">
+                    </div>
+                    <div class="moment-info">
+                        <h3 class="moment-title">礼物</h3>
+                        <span class="moment-date"></span>
+                        <p class="moment-desc">我收到的第二份礼物，为什么是第二份呢，因为第一份没有拍照</p>
+                    </div>
+                </div>
+
+                <div class="moment-card">
+                    <div class="moment-image">
+                        <img src="images/zhongkao.JPG" alt="社团活动">
+                    </div>
+                    <div class="moment-info">
+                        <h3 class="moment-title">中考</h3>
+                        <span class="moment-date"></span>
+                        <p class="moment-desc">初中生活结束，人生开往新方向</p>
+                    </div>
+                </div>
+                
+                <div class="moment-card">
+                    <div class="moment-image">
+                        <img src="images/snow.JPG" alt="团队合作">
+                    </div>
+                    <div class="moment-info">
+                        <h3 class="moment-title">雪景</h3>
+                        <span class="moment-date"></span>
+                        <p class="moment-desc">高二那年寒假，前所未有的大雪，武汉仿佛童话世界，我玩得像个17岁的小孩子一样开心</p>
+                    </div>
+                </div>
+                
+                <div class="moment-card">
+                    <div class="moment-image">
+                        <img src="images/biye.JPG" alt="校园生活">
+                    </div>
+                    <div class="moment-info">
+                        <h3 class="moment-title">毕业了</h3>
+                        <span class="moment-date"></span>
+                        <p class="moment-desc">有再多的不舍，也要忍心割舍</p>
+                    </div>
+                </div>
+            </div>
+
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首页</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 我的个人主页</p>
+    </footer>
+
+    <script>
+        // 主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const themeLabel = document.getElementById('themeLabel');
+        const html = document.documentElement;
+
+        // 读取本地存储的主题设置
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            html.classList.add('light-mode');
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            themeLabel.textContent = '切换深色模式';
+        }
+
+        // 切换主题
+        themeToggle.addEventListener('click', () => {
+            const isLight = html.classList.toggle('light-mode');
+            
+            if (isLight) {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                themeLabel.textContent = '切换深色模式';
+                localStorage.setItem('theme', 'light');
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                themeLabel.textContent = '切换浅色模式';
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // 返回顶部功能
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+        });
+        
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 导航栏滚动功能
+        const navScroll = document.getElementById('navScroll');
+        const navLeft = document.getElementById('navLeft');
+        const navRight = document.getElementById('navRight');
+        let scrollAmount = 0;
+        const scrollStep = 150; // 每次滚动的距离
+
+        navRight.addEventListener('click', () => {
+            const maxScroll = navScroll.scrollWidth - navScroll.parentElement.clientWidth;
+            scrollAmount = Math.min(scrollAmount + scrollStep, maxScroll);
+            navScroll.style.transform = `translateX(-${scrollAmount}px)`;
+        });
+
+        navLeft.addEventListener('click', () => {
+            scrollAmount = Math.max(scrollAmount - scrollStep, 0);
+            navScroll.style.transform = `translateX(-${scrollAmount}px)`;
+        });
+
+        // 窗口大小变化时重置滚动位置
+        window.addEventListener('resize', () => {
+            scrollAmount = 0;
+            navScroll.style.transform = `translateX(0)`;
+        });
+
+        // 移动端菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.add('active');
+        });
+
+        mobileMenuClose.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+        });
+
+        // 键盘导航支持
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                mobileMenu.classList.remove('active');
+            }
+            if (e.key === 'PageUp') {
+                window.scrollBy({ top: -300, behavior: 'smooth' });
+            }
+            if (e.key === 'PageDown') {
+                window.scrollBy({ top: 300, behavior: 'smooth' });
+            }
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

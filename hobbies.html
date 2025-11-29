@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兴趣爱好 | 陶晨博的个人主页</title>
+    <style>
+        /* 主题变量定义 */
+        :root {
+            /* 深色模式（默认）- 大幅降低背景透明度 */
+            --bg-primary: rgba(0, 0, 30, 0.2);
+            --text-color: #f8f8f2;
+            --card-bg: rgba(0, 0, 40, 0.3);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --content-bg: rgba(0, 0, 30, 0.2);
+            --terminal-header: linear-gradient(to right, #4facfe, #00f2fe);
+            --prompt-color: #ff79c6;
+            --command-color: #00ff41;
+            --response-color: #f1fa8c;
+            --accent-color: #4facfe;
+            --accent-gradient: linear-gradient(to right, #4facfe, #00f2fe);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --hover-bg: rgba(79, 172, 254, 0.3);
+            --bg-image: url('images/flower.JPG');
+            --scroll-progress-color: var(--accent-color);
+        }
+
+        .light-mode {
+            /* 浅色模式 - 大幅降低背景透明度 */
+            --bg-primary: rgba(245, 245, 250, 0.2);
+            --text-color: #2d2d2d;
+            --card-bg: rgba(255, 255, 255, 0.4);
+            --card-border: rgba(200, 200, 200, 0.2);
+            --content-bg: rgba(248, 248, 250, 0.2);
+            --terminal-header: linear-gradient(to right, #2980b9, #3498db);
+            --prompt-color: #9b59b6;
+            --command-color: #27ae60;
+            --response-color: #f39c12;
+            --accent-color: #2980b9;
+            --accent-gradient: linear-gradient(to right, #2980b9, #3498db);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --hover-bg: rgba(41, 128, 185, 0.2);
+            --bg-image: url('images/flower.JPG');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+            transition: all 0.5s ease;
+        }
+
+        /* 滚动进度条 */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: var(--scroll-progress-color);
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+
+        /* 增强的主题切换按钮 */
+        .theme-toggle-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-toggle {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            font-size: 1.4rem;
+            position: relative;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px var(--shadow-color);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .theme-label {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateX(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .theme-toggle-container:hover .theme-label {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        body {
+            background-image: var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 2rem 0;
+            position: relative;
+            color: var(--text-color);
+            opacity: 1;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: -1;
+        }
+
+        .glass-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .terminal {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(79, 172, 254, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .terminal {
+                padding: 1rem;
+            }
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            padding: 1rem 2rem;
+            margin: 0 -2rem 2rem -2rem;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 2px 10px var(--shadow-color);
+        }
+
+        .logo i {
+            font-size: 2rem;
+            animation: spin 5s linear infinite;
+            color: var(--accent-color);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+            font-weight: 400;
+        }
+
+        .nav-links a:hover {
+            background: var(--hover-bg);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        .nav-links a:active {
+            transform: translateY(-1px);
+        }
+
+        .nav-links a.active {
+            background: var(--hover-bg);
+            border-bottom: 2px solid var(--accent-color);
+            font-weight: 600;
+        }
+
+        .terminal-header {
+            background: var(--terminal-header);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px 10px 0 0;
+            margin: -2rem -2rem 1rem -2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 5px 15px var(--shadow-color);
+        }
+
+        @media (max-width: 768px) {
+            .terminal-header {
+                margin: -1rem -1rem 1rem -1rem;
+            }
+        }
+
+        .terminal-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 1.5rem;
+            background: var(--content-bg);
+            backdrop-filter: blur(5px);
+            border-radius: 0 0 10px 10px;
+            color: var(--command-color);
+            min-height: 600px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .command {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            opacity: 1;
+            transform: none;
+        }
+
+        .prompt {
+            color: var(--prompt-color);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        /* 终端光标优化 */
+        .prompt::after {
+            content: '▋';
+            animation: blink 0.8s step-end infinite;
+        }
+
+        .response {
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            color: var(--response-color);
+            font-weight: 300;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* 四宫格布局 - 固定2列2行 */
+        .hobbies-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 固定2列 */
+            grid-template-rows: repeat(2, 1fr);    /* 固定2行 */
+            gap: 2rem;
+            margin: 2rem 0;
+            max-width: 1000px; /* 控制最大宽度，保持四宫格比例 */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            /* 移动端恢复单列布局 */
+            .hobbies-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 1fr);
+            }
+        }
+
+        @media (max-width: 375px) {
+            .hobbies-grid {
+                gap: 1rem;
+            }
+        }
+
+        .hobby-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            height: 100%; /* 确保卡片高度一致 */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+
+        .hobby-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* 媒体容器样式（视频/照片） */
+        .media-container {
+            width: 100%;
+            height: 160px;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            flex-shrink: 0; /* 防止容器被压缩 */
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .media-container {
+                height: 200px;
+            }
+        }
+
+        /* 视频加载占位 */
+        .media-container::before {
+            content: '加载中...';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-color);
+            z-index: 1;
+        }
+
+        .media-container video::after,
+        .media-container img::after {
+            display: none;
+        }
+        
+        /* 视频样式 */
+        .hobby-video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 单张照片样式 */
+        .single-photo {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        .single-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .hobby-card:hover .single-photo img {
+            transform: scale(1.05);
+        }
+
+        .hobby-title {
+            color: var(--accent-color);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .hobby-desc {
+            color: var(--response-color);
+            line-height: 1.6;
+            flex-grow: 1; /* 让描述文字填充剩余空间 */
+            font-weight: 400;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: transform 0.6s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn:active {
+            transform: translateY(-2px);
+        }
+
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 99;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 15px var(--shadow-color);
+            font-size: 1.2rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top:hover {
+            background: var(--hover-bg);
+            transform: scale(1.05);
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:active {
+            transform: scale(0.95);
+        }
+
+        .back-to-top::after {
+            content: attr(data-percent);
+            position: absolute;
+            top: -25px;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top:hover::after {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .theme-toggle {
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
+            
+            .theme-label {
+                display: none;
+            }
+            
+            .back-to-top {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .back-to-top::after {
+                display: none;
+            }
+        }
+
+        /* 移动端导航菜单 */
+        .menu-toggle {
+            display: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 250px;
+            height: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            border-left: 1px solid var(--card-border);
+            z-index: 999;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            padding: 2rem;
+        }
+
+        .mobile-menu.active {
+            transform: translateX(0);
+        }
+
+        .mobile-menu a {
+            display: block;
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--card-border);
+            transition: all 0.2s ease;
+        }
+
+        .mobile-menu a:hover {
+            padding-left: 10px;
+            color: var(--accent-color);
+        }
+
+        .mobile-menu-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-color);
+        }
+
+        .mobile-menu-close:hover {
+            color: var(--accent-color);
+            transform: rotate(90deg);
+        }
+
+        @keyframes blink {
+            from, to { opacity: 1 }
+            50% { opacity: 0 }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 滚动进度条 -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- 增强的主题切换按钮 -->
+    <div class="theme-toggle-container">
+        <button class="theme-toggle" id="themeToggle">
+            <i class="fas fa-sun"></i>
+        </button>
+        <span class="theme-label" id="themeLabel">切换浅色模式</span>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop" data-percent="0%">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- 移动端导航菜单 -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-close" id="mobileMenuClose">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="index.html"><i class="fas fa-home"></i> 首页</a>
+        <a href="basic-info.html"><i class="fas fa-user"></i> 关于我</a>
+        <a href="education.html"><i class="fas fa-graduation-cap"></i> 校园生活</a>
+        <a href="hobbies.html" class="active"><i class="fas fa-heart"></i> 兴趣爱好</a>
+    </div>
+
+    <div class="glass-container">
+        <div class="header-nav">
+            <a href="index.html" class="logo">
+                <i class="fas fa-star"></i>
+                我的青春主页
+            </a>
+            <div class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> 首页</a>
+                <a href="basic-info.html"><i class="fas fa-user"></i> 关于我</a>
+                <a href="education.html"><i class="fas fa-graduation-cap"></i> 校园生活</a>
+                <a href="hobbies.html" class="active"><i class="fas fa-heart"></i> 兴趣爱好</a>
+            </div>
+            <!-- 移动端菜单按钮 -->
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-title">陶晨博的兴趣爱好系统</div>
+                <div><i class="fas fa-terminal"></i></div>
+            </div>
+            
+            <div class="content">
+                <div class="command">
+                    <span class="prompt">> let's begin</span>
+                </div>
+                <div class="response">
+                    欢迎访问兴趣爱好系统！<br>
+                    正在加载陶晨博的兴趣数据及媒体资源...<br>
+                    <span style="color: var(--accent-color);">[加载完成]</span><br>
+                    <span style="color: var(--text-color); font-style: italic;">—— 「生活不止代码，还有诗和远方」</span>
+                </div>
+
+                <div class="command">
+                    <span class="prompt">> list hobbies with media</span>
+                </div>
+                <div class="response">
+                    <strong>🎯 兴趣爱好列表（媒体展示）:</strong>
+                </div>
+
+                <!-- 四宫格布局：吉他(视频)、摄影(视频)、篮球(单图)、游戏(单图) -->
+                <div class="hobbies-grid">
+                    <!-- 第一格：吉他（视频） -->
+                    <div class="hobby-card">
+                        <div class="hobby-title">
+                            <i class="fas fa-guitar"></i> 吉他
+                        </div>
+                        <div class="media-container">
+                            <video class="hobby-video" controls poster="images/cover1.JPG" preload="metadata">
+                                <source src="videos/guitar.MP4" type="video/mp4">
+                                您的浏览器不支持视频播放
+                            </video>
+                        </div>
+                        <div class="hobby-desc">
+                            吉他是高中舍友教的，想起高中在寝室的间隙匆匆拨弄几下琴弦，还真有点怀念
+                        </div>
+                    </div>
+
+                    <!-- 第二格：摄影（视频） -->
+                    <div class="hobby-card">
+                        <div class="hobby-title">
+                            <i class="fas fa-camera"></i> 摄影
+                        </div>
+                        <div class="media-container">
+                            <video class="hobby-video" controls poster="images/cover2.JPG" preload="metadata">
+                                <source src="videos/photograph.mp4" type="video/mp4">
+                                您的浏览器不支持视频播放
+                            </video>
+                        </div>
+                        <div class="hobby-desc">
+                            高中和同学们制作的寝室宣传片的片头，素材都是生活中拍摄的，高中美好的回忆
+                        </div>
+                    </div>
+
+                    <!-- 第三格：篮球（单张照片） -->
+                    <div class="hobby-card">
+                        <div class="hobby-title">
+                            <i class="fas fa-basketball-ball"></i> 篮球
+                        </div>
+                        <div class="media-container">
+                            <div class="single-photo">
+                                <img src="images/basketball.JPG" alt="篮球比赛" loading="lazy">
+                            </div>
+                        </div>
+                        <div class="hobby-desc">
+                            高中班赛首发中锋，结果被打爆了，对不起在外线挥汗如雨的兄弟们
+                        </div>
+                    </div>
+
+                    <!-- 第四格：游戏（单张照片） -->
+                    <div class="hobby-card">
+                        <div class="hobby-title">
+                            <i class="fas fa-gamepad"></i> 游戏
+                        </div>
+                        <div class="media-container">
+                            <div class="single-photo">
+                                <img src="images/game.JPG" alt="游戏设备" loading="lazy">
+                            </div>
+                        </div>
+                        <div class="hobby-desc">
+                            部落冲突八年老粉，曾经也是顶级玩家，高中三年没玩，现在已经被时代狠狠地抛在了后面。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="command">
+                    <span class="prompt">> exit</span>
+                </div>
+                <div class="response">
+                    感谢浏览陶晨博的兴趣爱好！<br>
+                </div>
+
+                <div class="nav-buttons">
+                    <a href="index.html" class="btn"><i class="fas fa-home"></i> 返回首页</a>
+                    <a href="basic-info.html" class="btn"><i class="fas fa-user"></i> 关于我</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 系统主题检测
+        const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        
+        // 增强的主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const themeLabel = document.getElementById('themeLabel');
+        const html = document.documentElement;
+
+        // 初始化主题
+        if (savedTheme === 'light' || (!savedTheme && prefersLight)) {
+            html.classList.add('light-mode');
+            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            themeLabel.textContent = '切换深色模式';
+            localStorage.setItem('theme', 'light');
+        }
+
+        // 切换主题
+        themeToggle.addEventListener('click', () => {
+            const isLight = html.classList.toggle('light-mode');
+            
+            if (isLight) {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                themeLabel.textContent = '切换深色模式';
+                localStorage.setItem('theme', 'light');
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                themeLabel.textContent = '切换浅色模式';
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // 返回顶部功能
+        const backToTopBtn = document.getElementById('backToTop');
+        const scrollProgress = document.getElementById('scrollProgress');
+        
+        window.addEventListener('scroll', () => {
+            // 显示/隐藏返回顶部按钮
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
+            
+            // 更新滚动进度
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            
+            scrollProgress.style.width = scrolled + '%';
+            backToTopBtn.setAttribute('data-percent', Math.round(scrolled) + '%');
+        });
+        
+        backToTopBtn.addEventListener('click', () => {
+            // 添加旋转动画
+            backToTopBtn.style.transform = 'rotate(360deg)';
+            setTimeout(() => {
+                backToTopBtn.style.transform = '';
+            }, 800);
+            
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // 移动端菜单功能
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        mobileMenuClose.addEventListener('click', () => {
+            mobileMenu.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        // 点击菜单外部关闭
+        document.addEventListener('click', (e) => {
+            if (mobileMenu.classList.contains('active') && 
+                !mobileMenu.contains(e.target) && 
+                !menuToggle.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // 键盘导航支持
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                mobileMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            if (e.key === 'PageUp') {
+                window.scrollBy({ top: -300, behavior: 'smooth' });
+            }
+            if (e.key === 'PageDown') {
+                window.scrollBy({ top: 300, behavior: 'smooth' });
+            }
+            // 添加Home/End键支持
+            if (e.key === 'Home') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            if (e.key === 'End') {
+                window.scrollTo({ bottom: 0, behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
