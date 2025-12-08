@@ -694,9 +694,9 @@
     <!-- 增强的主题切换按钮 -->
     <div class="theme-toggle-container">
         <button class="theme-toggle" id="themeToggle">
-            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i> <!-- 初始显示月亮图标（浅色模式） -->
         </button>
-        <span class="theme-label" id="themeLabel">切换浅色模式</span>
+        <span class="theme-label" id="themeLabel">切换深色模式</span> <!-- 初始提示切换深色 -->
     </div>
 
     <!-- 返回顶部按钮 -->
@@ -853,7 +853,7 @@
     </div>
 
     <script>
-        // 系统主题检测
+        // 系统主题检测 - 核心修改：默认强制浅色模式
         const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
         const savedTheme = localStorage.getItem('theme');
         
@@ -862,15 +862,14 @@
         const themeLabel = document.getElementById('themeLabel');
         const html = document.documentElement;
 
-        // 初始化主题
-        if (savedTheme === 'light' || (!savedTheme && prefersLight)) {
-            html.classList.add('light-mode');
-            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-            themeLabel.textContent = '切换深色模式';
-            localStorage.setItem('theme', 'light');
-        }
+        // 初始化主题 - 核心修改：优先设置浅色模式（无论本地存储/系统偏好）
+        // 强制默认浅色模式，覆盖原有逻辑
+        html.classList.add('light-mode'); // 直接添加浅色模式类
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>'; // 显示月亮图标
+        themeLabel.textContent = '切换深色模式'; // 提示切换深色
+        localStorage.setItem('theme', 'light'); // 同步本地存储
 
-        // 切换主题
+        // 切换主题逻辑保持不变
         themeToggle.addEventListener('click', () => {
             const isLight = html.classList.toggle('light-mode');
             
