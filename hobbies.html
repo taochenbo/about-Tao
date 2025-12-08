@@ -193,6 +193,8 @@
             align-items: center;
             gap: 0.5rem;
             text-shadow: 0 2px 10px var(--shadow-color);
+            /* 固定logo宽度，避免影响导航滚动 */
+            min-width: 180px;
         }
 
         .logo i {
@@ -206,10 +208,59 @@
             to { transform: rotate(360deg); }
         }
 
-        .nav-links a {
+        /* 导航滚动容器 - 核心修改 */
+        .nav-container {
+            position: relative;
+            overflow: hidden;
+            max-width: calc(100% - 240px); /* 减去logo和菜单按钮宽度 */
+        }
+
+        .nav-scroll {
+            display: flex;
+            gap: 1rem;
+            transition: transform 0.3s ease;
+            padding: 0 0.5rem;
+            white-space: nowrap; /* 禁止导航项换行 */
+        }
+
+        /* 导航箭头 */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .nav-arrow:hover {
+            opacity: 1;
+            background: var(--hover-bg);
+        }
+
+        .nav-arrow.left {
+            left: 0;
+        }
+
+        .nav-arrow.right {
+            right: 0;
+        }
+
+        /* 导航链接样式保持不变 */
+        .nav-scroll a {
             color: var(--text-color);
             text-decoration: none;
-            margin-left: 1.5rem;
+            margin-left: 0;
             padding: 0.5rem 1rem;
             border-radius: 20px;
             background: rgba(255, 255, 255, 0.08);
@@ -219,17 +270,17 @@
             font-weight: 400;
         }
 
-        .nav-links a:hover {
+        .nav-scroll a:hover {
             background: var(--hover-bg);
             transform: translateY(-3px);
             box-shadow: 0 5px 15px var(--shadow-color);
         }
 
-        .nav-links a:active {
+        .nav-scroll a:active {
             transform: translateY(-1px);
         }
 
-        .nav-links a.active {
+        .nav-scroll a.active {
             background: var(--hover-bg);
             border-bottom: 2px solid var(--accent-color);
             font-weight: 600;
@@ -542,7 +593,7 @@
         }
 
         @media (max-width: 768px) {
-            .nav-links {
+            .nav-container, .nav-arrow {
                 display: none;
             }
 
@@ -662,6 +713,8 @@
         <a href="basic-info.html"><i class="fas fa-user"></i> 关于我</a>
         <a href="education.html"><i class="fas fa-graduation-cap"></i> 校园生活</a>
         <a href="hobbies.html" class="active"><i class="fas fa-heart"></i> 兴趣爱好</a>
+        <a href="moments.html"><i class="fas fa-camera"></i> 难忘瞬间</a>
+        <a href="future.html"><i class="fas fa-rocket"></i> 未来展望</a>
     </div>
 
     <div class="glass-container">
@@ -670,12 +723,25 @@
                 <i class="fas fa-star"></i>
                 我的青春主页
             </a>
-            <div class="nav-links">
-                <a href="index.html"><i class="fas fa-home"></i> 首页</a>
-                <a href="basic-info.html"><i class="fas fa-user"></i> 关于我</a>
-                <a href="education.html"><i class="fas fa-graduation-cap"></i> 校园生活</a>
-                <a href="hobbies.html" class="active"><i class="fas fa-heart"></i> 兴趣爱好</a>
+            
+            <!-- 新增：导航滚动容器 + 左右箭头 -->
+            <div class="nav-container">
+                <div class="nav-arrow left" id="navLeft">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="nav-scroll" id="navScroll">
+                    <a href="index.html"><i class="fas fa-home"></i> 首页</a>
+                    <a href="basic-info.html"><i class="fas fa-user"></i> 关于我</a>
+                    <a href="education.html"><i class="fas fa-graduation-cap"></i> 校园生活</a>
+                    <a href="hobbies.html" class="active"><i class="fas fa-heart"></i> 兴趣爱好</a>
+                    <a href="moments.html"><i class="fas fa-camera"></i> 难忘瞬间</a>
+                    <a href="future.html"><i class="fas fa-rocket"></i> 未来展望</a>
+                </div>
+                <div class="nav-arrow right" id="navRight">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
             </div>
+            
             <!-- 移动端菜单按钮 -->
             <div class="menu-toggle" id="menuToggle">
                 <i class="fas fa-bars"></i>
@@ -731,7 +797,7 @@
                         </div>
                         <div class="media-container">
                             <video class="hobby-video" controls poster="images/cover2.JPG" preload="metadata">
-                                <source src="videos/photograph.MP4" type="video/mp4">
+                                <source src="videos/photograph.mp4" type="video/mp4">
                                 您的浏览器不支持视频播放
                             </video>
                         </div>
@@ -898,7 +964,32 @@
                 window.scrollTo({ bottom: 0, behavior: 'smooth' });
             }
         });
+
+        // 新增：导航滚动功能
+        const navScroll = document.getElementById('navScroll');
+        const navLeft = document.getElementById('navLeft');
+        const navRight = document.getElementById('navRight');
+        let scrollAmount = 0;
+        const scrollStep = 150; // 每次滚动的距离
+
+        // 向右滚动
+        navRight.addEventListener('click', () => {
+            const maxScroll = navScroll.scrollWidth - navScroll.parentElement.clientWidth;
+            scrollAmount = Math.min(scrollAmount + scrollStep, maxScroll);
+            navScroll.style.transform = `translateX(-${scrollAmount}px)`;
+        });
+
+        // 向左滚动
+        navLeft.addEventListener('click', () => {
+            scrollAmount = Math.max(scrollAmount - scrollStep, 0);
+            navScroll.style.transform = `translateX(-${scrollAmount}px)`;
+        });
+
+        // 窗口大小变化时重置滚动位置
+        window.addEventListener('resize', () => {
+            scrollAmount = 0;
+            navScroll.style.transform = `translateX(0)`;
+        });
     </script>
 </body>
-
 </html>

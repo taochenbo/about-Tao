@@ -663,7 +663,7 @@
 
     <!-- 固定头像 -->
     <div class="avatar-container">
-        <img src="images/avatar.JPG" alt="我的头像" class="avatar-img" loading="lazy">
+        <img src="images/avatar.jpg" alt="我的头像" class="avatar-img" loading="lazy">
     </div>
 
     <div class="container">
@@ -790,7 +790,7 @@
         handsomeBtn.addEventListener('click', function() {
             voteCount++;
             localStorage.setItem('handsomeVoteCount', voteCount);
-            voteResult.textContent = `有眼光！你是第${voteCount}个这么觉得的`;
+            voteResult.textContent = `有眼光！`;
             voteResult.className = 'vote-result result-success';
             
             setTimeout(() => {
@@ -930,5 +930,4 @@
         });
     </script>
 </body>
-
 </html>
